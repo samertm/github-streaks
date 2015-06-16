@@ -14,7 +14,11 @@
   ;; dispatch-rules syntax.
   (dispatch-rules
    [("") serve-home]
-   [("create-group") serve-create-group]))
+   [("create-group") #:method "post" serve-create-group]))
+
+(define (serve-error req)
+  (response/xexpr
+   `(html (body (p "error page.")))))
 
 ;; Request handlers:
 
@@ -22,10 +26,20 @@
   (response/xexpr
    `(html
      (body
-      (p "Track your GitHub streaks and compete with your friends!")))))
+      (p "Track your GitHub streaks and compete with your friends!")
+      (form ([method "POST"] [action ,(site-url serve-create-group)])
+            "group name: " (input ([type "text"] [name "group-name"]))
+            (input ([type "submit"])))))))
+
+(define (form-value id req)
+  (define val (bindings-assq id (request-bindings/raw req)))
+  (when (binding:form? val)
+    (bytes->string/utf-8 (binding:form-value val))))
 
 (define (serve-create-group req)
-  )
+  (define group-name (form-value #"group-name" req))
+  (response/xexpr
+   `(html (body (p "Your group name is " ,group-name ".")))))
 
 ;; IDEA:
 ;; - Front page has two things: create a streak group, sign up for a streak group.
