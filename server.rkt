@@ -28,7 +28,9 @@
      (body
       (p "Track your GitHub streaks and compete with your friends!")
       (form ([method "POST"] [action ,(site-url serve-create-group)])
-            "group name: " (input ([type "text"] [name "group-name"]))
+            "Enter your username: " (input ([type "text"] [name "username"]))
+            "Enter the usernames of your friends: " (input ([type "text"]) [name "friend-usernames"])
+            "Your group name: " (input ([type "text"]) [name "group-name"])
             (input ([type "submit"])))))))
 
 (define (form-value id req)
