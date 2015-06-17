@@ -38,19 +38,19 @@
     [(_ . p)
      (list (string->bytes/utf-8 (include-template . p)))]))
 
-(define (serve-home req)
-  (response/default #:body (include-template-body "templates/index.html")))
-
 (define (form-value id req)
   (define val (bindings-assq id (request-bindings/raw req)))
   (when (binding:form? val)
     (bytes->string/utf-8 (binding:form-value val))))
 
+(define (serve-home req)
+  (response/default #:body (include-template-body "templates/index.html")))
+
 (define (serve-create-group req)
   (define group-name (form-value #"group-name" req))
+  (response/default #:body (include-template-body "templates/create-group.html")))
 
-  (response/xexpr
-   `(html (body (p "Your group name is " ,group-name ".")))))
+;; commentary: statically-checked templates are *amazing*!
 
 ;; IDEA:
 ;; - Front page has two things: create a streak group, sign up for a streak group.
