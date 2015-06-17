@@ -3,6 +3,8 @@
 (provide interface-version stuffer start)
 (define interface-version 'stateless)
 
+(require web-server/templates)
+
 ;; start is the entry point for your server.
 (define (start req)
   (site-router req))
@@ -22,16 +24,22 @@
 
 ;; Request handlers:
 
+(define (response/default #:code      [code 200]
+                          #:message   [message #"Okay"]
+                          #:seconds   [seconds (current-seconds)]
+                          #:mime-type [mime-type TEXT/HTML-MIME-TYPE]
+                          #:headers   [headers '()]
+                          ;; #:cookies   [cookies '()]
+                          #:body      [body '(#"")])
+  (response/full code message seconds mime-type headers body))
+
+(define-syntax include-template-body
+  (syntax-rules ()
+    [(_ . p)
+     (list (string->bytes/utf-8 (include-template . p)))]))
+
 (define (serve-home req)
-  (response/xexpr
-   `(html
-     (body
-      (p "Track your GitHub streaks and compete with your friends!")
-      (form ([method "POST"] [action ,(site-url serve-create-group)])
-            "Enter your username: " (input ([type "text"] [name "username"]))
-            "Enter the usernames of your friends: " (input ([type "text"] [name "friend-usernames"]))
-            "Your group name: " (input ([type "text"] [name "group-name"]))
-            (input ([type "submit"])))))))
+  (response/default #:body (include-template-body "templates/index.html")))
 
 (define (form-value id req)
   (define val (bindings-assq id (request-bindings/raw req)))
@@ -40,10 +48,10 @@
 
 (define (serve-create-group req)
   (define group-name (form-value #"group-name" req))
+
   (response/xexpr
    `(html (body (p "Your group name is " ,group-name ".")))))
 
 ;; IDEA:
 ;; - Front page has two things: create a streak group, sign up for a streak group.
 ;; - "Put in your GitHub username to create a streak group and compete with your friends."
-
