@@ -1,0 +1,6 @@
+#lang racket
+
+;; Rename this file to config.rkt.
+
+(define github-client-id "xxxxxxxxxxxxxxxxxxxx")
+(define github-client-secret "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
